@@ -1,0 +1,32 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>clear_button.png</file>
+        <file>del_button.png</file>
+        <file>dit_button.png</file>
+        <file>file_button.png</file>
+        <file>groups_icon.png</file>
+        <file>groups_icon_red.png</file>
+        <file>hide_button.png</file>
+        <file>lamp.png</file>
+        <file>publications_icon.png</file>
+        <file>publications_icon_red.png</file>
+        <file>show_button.png</file>
+        <file>xlsx_export.png</file>
+        <file>xml_icon.png</file>
+        <file>xml_icon_red.png</file>
+        <file>dot.png</file>
+        <file>nothing.png</file>
+        <file>arrow.png</file>
+        <file>search_icon.png</file>
+        <file>checkbox.png</file>
+        <file>checkbox_checked.png</file>
+        <file>dot_unchecked.png</file>
+        <file>file_button_blue.png</file>
+    </qresource>
+    <qresource prefix="/fonts">
+        <file>Roboto.ttf</file>
+        <file>Roboto-Light.ttf</file>
+        <file>Roboto-Medium.ttf</file>
+        <file>Roboto-Regular.ttf</file>
+    </qresource>
+</RCC>
