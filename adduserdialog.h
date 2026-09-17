@@ -25,7 +25,6 @@ public:
 
 private:
     Ui::addUserDialog *ui;
-    void onLoginClicked();
     void onAuthSuccess(const QString &accessToken, const QString &refreshToken, const QString &deviceId);
     void onAuthError(const QString &errorMessage);
     void generateTokens();

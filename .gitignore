@@ -1,0 +1,10 @@
+*.pro.user
+*.pro.user.*
+build-*/
+debug/
+release/
+Makefile*
+*.o
+moc_*.cpp
+ui_*.h
+qrc_*.cpp

@@ -82,7 +82,6 @@ bool addUserDialog::checkInputText()
        match = linkRegex.match(ui->groupLinkEdit->text());
        if (match.hasMatch()) return true;
    }
-   //qDebug() << "It isn't vk's link";
    return false;
 }
 

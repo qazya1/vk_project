@@ -88,19 +88,7 @@ bool ensureBackgroundJobsSchema(QSqlDatabase &db)
 }
 
 }
-#include <QFile>
-#include <QtSql>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QDebug>
-#include <QStringList>
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
-#include <QDir>
-#include <QDateTime>
-#include "xlsxdocument.h"
-#include "xlsxformat.h"
-#include "sqlite/sqlite3.h"
+
 #include "group.h"
 
 namespace {
@@ -120,8 +108,6 @@ void likeNoCase(sqlite3_context* context, int argc, sqlite3_value** argv) {
     QString qstr = QString::fromUtf8(str);
     QString qpattern = QString::fromUtf8(pattern);
 
-    //qDebug() << "LIKE_NOCASE: str =" << qstr << "pattern =" << qpattern;
-
     // Простая реализация для шаблонов вида "текст%"
     if (qpattern.endsWith('%') && qpattern.startsWith('%')) {
         QString main = qpattern.left(qpattern.length() - 1);
@@ -132,12 +118,10 @@ void likeNoCase(sqlite3_context* context, int argc, sqlite3_value** argv) {
     else if (qpattern.endsWith('%')) {
         QString prefix = qpattern.left(qpattern.length() - 1);
         bool match = qstr.startsWith(prefix, Qt::CaseInsensitive);
-        //qDebug() << "Prefix match:" << prefix << "->" << match;
         sqlite3_result_int(context, match ? 1 : 0);
     } else {
         // Для других случаев используем прямое сравнение
         bool match = (QString::compare(qstr, qpattern, Qt::CaseInsensitive) == 0);
-        //qDebug() << "Exact match:" << match;
         sqlite3_result_int(context, match ? 1 : 0);
     }
 }
@@ -295,38 +279,6 @@ bool connectWithDB(QSqlDatabase &db, const QString &dbPath) {
             END;
         )";
         createQuery.exec(trg2);
-
-        QString createTriggerSql = R"(
-            CREATE TRIGGER before_announcements_insert
-            BEFORE INSERT ON announcements
-            FOR EACH ROW
-            BEGIN
-                -- Проверка 1: Дата завершения публикации должна быть в будущем
-                SELECT CASE
-                    WHEN date(NEW.depublication_date) <= date('now')
-                    THEN RAISE(ABORT, 'Нельзя добавить объявление с датой завершения публикации меньше или равной текущей')
-                END;
-
-                -- Проверка 2: Если существует объявление с таким же INN и вакансией и более поздней датой счета - отмена
-                SELECT RAISE(ABORT, 'Объявление с таким INN и вакансией уже существует с более поздней датой счета')
-                FROM announcements
-                WHERE inn = NEW.inn
-                  AND vacancy = NEW.vacancy
-                  AND date(account_date) >= date(NEW.account_date)
-                LIMIT 1;
-
-                -- Удаляем старые записи, если они устарели по дате счёта
-                DELETE FROM announcements
-                WHERE inn = NEW.inn
-                  AND vacancy = NEW.vacancy
-                  AND date(account_date) < date(NEW.account_date);
-            END;
-        )";
-
-        if (!createQuery.exec(createTriggerSql)) {
-            qDebug() << "Ошибка создания триггера:" << createQuery.lastError().text();
-            return false;
-        }
 
         qDebug() << "База данных успешно создана и инициализирована";
 
@@ -507,8 +459,6 @@ QVector<QVector<QVariant>> queryAnnouncementsData(QSqlDatabase &db, int groupId,
 
     // Добавление ограничений для постраничного вывода
     req += "LIMIT " + QString::number(limit) + " OFFSET " + QString::number(limit*(page-1));
-    //qDebug() << allowedFirstWords;
-    //qDebug() << req;
 
     QSqlQuery query(db);
     QVector<QVector<QVariant>> data;
@@ -519,12 +469,8 @@ QVector<QVector<QVariant>> queryAnnouncementsData(QSqlDatabase &db, int groupId,
             for (int i = 0; i < 25; ++i) {
                 vectorRow.append(query.value(i));
             }
-            //qDebug() << vectorRow;
             data.append(vectorRow);
         }
-    }
-    else {
-        //qDebug() << "Failed to get data:" << query.lastError().text();
     }
 
     return data;
@@ -741,13 +687,11 @@ bool updateAnnouncementDataValue(QSqlDatabase &db, int id, const QString &column
 {
     // Проверяем подключение к БД
     if (!db.isOpen()) {
-        //qDebug() << "Database is not connected!";
         return false;
     }
 
     // Проверяем валидность параметров
     if (id <= 0 || column.isEmpty()) {
-        //qDebug() << "Invalid parameters: id =" << id << ", column =" << column;
         return false;
     }
 
@@ -759,16 +703,12 @@ bool updateAnnouncementDataValue(QSqlDatabase &db, int id, const QString &column
     query.bindValue(":value", value);
     query.bindValue(":id", id);
 
-    //qDebug() << "Executing query:" << query.lastQuery() << "with values: value =" << value << ", id =" << id;
-
     if (!query.exec()) {
-        //qDebug() << "Failed to update row:" << query.lastError().text();
         return false;
     }
 
     // Проверяем, была ли действительно обновлена какая-либо строка
     if (query.numRowsAffected() <= 0) {
-        //qDebug() << "No rows were updated. Check if ID" << id << "exists.";
         return false;
     }
 
@@ -779,20 +719,17 @@ bool clearAnnouncementsTable(QSqlDatabase &db)
 {
     // Проверяем подключение к БД
     if (!db.isOpen()) {
-        //qDebug() << "Database is not connected!";
         return false;
     }
     QSqlQuery query(db);
 
     query.prepare("DELETE FROM announcement_publications");
     if (!query.exec()) {
-        //qDebug() << "Failed to clear db:" << query.lastError().text();
         return false;
     }
 
     query.prepare("DELETE FROM announcements");
     if (!query.exec()) {
-        //qDebug() << "Failed to clear db:" << query.lastError().text();
         return false;
     }
 
@@ -836,11 +773,7 @@ void deleteGroupDB(int id, QSqlDatabase &db)
     // Привязываем значения (без изменений)
     query.bindValue(":id", id);
 
-    if (!query.exec()) {
-            //qDebug() << "Failed to delete group:" << query.lastError().text();
-    }
-
-    //qDebug() << "Successfully deleted user";
+    query.exec();
 }
 
 bool updateGroupDB(const Group &groupData, QSqlDatabase &db)
@@ -866,23 +799,6 @@ bool updateGroupDB(const Group &groupData, QSqlDatabase &db)
     }
     return true;
 }
-
-//QVector<int> returnAllGroupIds(QSqlDatabase &db)
-//{
-//    // Формируем SQL-запрос для просмотра данных (адаптировано для SQLite)
-//    QSqlQuery query(db);
-//    query.prepare("SELECT id FROM vk_groups");
-
-//    QVector<int> vectorRow;
-//    if (query.exec())
-//    {
-//        while (query.next()) {
-//            vectorRow.append(query.value(0).toInt());
-//        }
-//    }
-//    return vectorRow;
-//}
-
 
 QMap<int, Group> loadGroupsFromDb(QSqlDatabase &db)
 {
@@ -938,7 +854,7 @@ bool loadGroupFromDb(int id, QSqlDatabase &db, Group &loadedGroup)
     dto.clientId = query.value(4).toString();
     dto.deviceId = query.value(5).toString();
     dto.filterFilePath = query.value(6).toString();
-    dto.name = query.value(6).toString();
+    dto.name = query.value(7).toString();
 
     loadedGroup = Group::fromDto(dto);
     return true;

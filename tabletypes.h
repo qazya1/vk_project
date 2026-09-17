@@ -8,11 +8,6 @@
 struct TableColumnDefinition
 {
     QString key;
-    QString title;
-    int width = -1;
-    bool editable = false;
-    bool searchable = false;
-    bool html = false;
 };
 
 struct TableDefinition
@@ -35,7 +30,6 @@ struct TableState
     bool markersEnabled = false;
     int totalPages = 0;
     int totalRecords = 0;
-    QMap<QString, QString> filters;
 };
 
 

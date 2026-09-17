@@ -29,27 +29,11 @@ void XmlImportTabController::setup()
 
 void XmlImportTabController::chooseXmlFile()
 {
-    chooseFileForLineEdit(QStringLiteral("xml"));
-}
-
-void XmlImportTabController::chooseFileForLineEdit(const QString &fileExtension)
-{
-    QString filter;
-    if (fileExtension == QStringLiteral("txt")) {
-        filter = QStringLiteral("Text files (*.txt);;All files (*.*)");
-    } else if (fileExtension == QStringLiteral("csv")) {
-        filter = QStringLiteral("CSV files (*.csv);;All files (*.*)");
-    } else if (fileExtension == QStringLiteral("json")) {
-        filter = QStringLiteral("JSON files (*.json);;All files (*.*)");
-    } else {
-        filter = QStringLiteral("%1 files (*.%1);;All files (*.*)").arg(fileExtension);
-    }
-
     const QString fileName = QFileDialog::getOpenFileName(
         m_dialogParent,
         QStringLiteral("Выберите файл"),
         QString(),
-        filter);
+        QStringLiteral("XML files (*.xml);;All files (*.*)"));
 
     if (!fileName.isEmpty()) {
         m_ui->pathXmlEdit->setText(QString::fromUtf8(fileName.toUtf8()));

@@ -27,8 +27,6 @@ private slots:
     void importXml();
 
 private:
-    void chooseFileForLineEdit(const QString &fileExtension);
-
     Ui::MainWindow *m_ui;
     AnnouncementService *m_announcementService;
     QWidget *m_dialogParent;
