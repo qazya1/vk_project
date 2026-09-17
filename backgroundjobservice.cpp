@@ -29,23 +29,6 @@ QList<BackgroundJobRecord> BackgroundJobService::loadActiveJobs(QSqlDatabase &db
     return jobs;
 }
 
-bool BackgroundJobService::loadActiveJobForGroup(int id, BackgroundJobRecord &record, QSqlDatabase &db) const
-{
-    QSqlQuery query(db);
-    query.prepare("SELECT group_record_id, task_type, status, process_id, started_at, finished_at, executable_path, detached FROM background_jobs WHERE group_record_id=:group_record_id AND task_type='publishing' AND status='running' LIMIT 1");
-    query.bindValue(":group_record_id", id);
-    if (!query.exec() || !query.next()) return false;
-    record.groupRecordId = query.value(0).toInt();
-    record.taskType = query.value(1).toString();
-    record.status = query.value(2).toString();
-    record.processId = query.value(3).toLongLong();
-    record.startedAt = query.value(4).toString();
-    record.finishedAt = query.value(5).toString();
-    record.executablePath = query.value(6).toString();
-    record.detached = query.value(7).toInt() != 0;
-    return true;
-}
-
 bool BackgroundJobService::startPublishingJob(int id, qint64 pid, const QString &executablePath, QSqlDatabase &db) const
 {
     QSqlQuery query(db);
@@ -66,18 +49,4 @@ bool BackgroundJobService::finishPublishingJob(int id, const QString &status, co
     query.bindValue(":last_error", message);
     query.bindValue(":group_record_id", id);
     return query.exec();
-}
-
-bool BackgroundJobService::markPublishingStopped(int id, const QString &message, QSqlDatabase &db) const
-{
-    return finishPublishingJob(id, QStringLiteral("stopped"), message, db);
-}
-
-int BackgroundJobService::markStalePublishingJobs(QSqlDatabase &db) const
-{
-    QSqlQuery query(db);
-    query.prepare("UPDATE background_jobs SET status='stale', finished_at=:finished_at, last_error='Помечено как устаревшая задача' WHERE task_type='publishing' AND status='running'");
-    query.bindValue(":finished_at", QDateTime::currentDateTimeUtc().toString(Qt::ISODate));
-    if (!query.exec()) return 0;
-    return query.numRowsAffected();
 }

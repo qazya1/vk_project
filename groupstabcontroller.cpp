@@ -294,10 +294,7 @@ void GroupsTabController::updateGroupComboBox()
     const QList<int> ids = m_groupService->sortedGroupIds();
     for (QList<int>::const_iterator it = ids.constBegin(); it != ids.constEnd(); ++it) {
         const Group group = m_groupService->value(*it);
-        QString title = QStringLiteral("Группа ") + QString::number(group.groupId);
-        if (title.isEmpty()) {
-            title = QStringLiteral("Group %1").arg(*it);
-        }
+        const QString title = QStringLiteral("Группа ") + QString::number(group.groupId);
         m_ui->groupSelectWidget->addItem(title, *it);
     }
 

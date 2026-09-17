@@ -36,9 +36,9 @@ public:
         QVector<int> columns;
         QString textColor, fontFamily;
         HtmlToggleConfig()
+            : textColor("#62560E")
+            , fontFamily("Roboto Light")
         {
-            QString textColor = "#62560E";
-            QString fontFamily = "Roboto Light";
         }
         int fontPixelSize = 20;
         int defaultRowHeight = 71;

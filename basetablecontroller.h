@@ -23,7 +23,6 @@ public:
     void setPageSize(int pageSize);
     void setSort(int column, Qt::SortOrder order);
     void setMarkersEnabled(bool enabled);
-    void clearFilters();
 
     virtual void reload() = 0;
 
@@ -31,7 +30,6 @@ signals:
     void tableStateChanged(const TableState &state);
 
 protected:
-    int columnIndexByKey(const QString &key) const;
     void emitStateChanged();
 
 protected:

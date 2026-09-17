@@ -57,22 +57,6 @@ void BaseTableController::setMarkersEnabled(bool enabled)
     m_state.markersEnabled = enabled;
 }
 
-void BaseTableController::clearFilters()
-{
-    m_state.filters.clear();
-    m_state.currentPage = 1;
-}
-
-int BaseTableController::columnIndexByKey(const QString &key) const
-{
-    for (int i = 0; i < m_definition.columns.size(); ++i) {
-        if (m_definition.columns[i].key == key) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 void BaseTableController::emitStateChanged()
 {
     emit tableStateChanged(m_state);
