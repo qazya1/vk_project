@@ -43,7 +43,6 @@ groupwidget::groupwidget(QWidget *parent)
     connect(ui->everyDayBox, &QPushButton::toggled, this, &groupwidget::handleBlockTime);
 
     ui->choicePeriodBox->setChecked(true);
-    ui->delAllPublicationsBox->hide();
 
     const int height = ui->deleteButton->height();
     foreach(QWidget *widget, ui->frame_6->findChildren<QWidget*>()) {
